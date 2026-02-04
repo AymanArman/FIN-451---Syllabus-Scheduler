@@ -8,21 +8,56 @@
 #
 
 library(shiny)
+library(lubridate)
+library(pdftools)
+library(tesseract)
 
-# Define server logic required to draw a histogram
-function(input, output, session) {
+server <- function(input, output, session) {
 
-    output$distPlot <- renderPlot({
+  current_page <- reactiveVal("upload")
 
-        # generate bins based on input$bins from ui.R
-        x    <- faithful[, 2]
-        bins <- seq(min(x), max(x), length.out = input$bins + 1)
+  default_start <- Sys.Date()
+  default_end <- default_start %m+% months(4)
 
-        # draw the histogram with the specified number of bins
-        hist(x, breaks = bins, col = 'darkgray', border = 'white',
-             xlab = 'Waiting time to next eruption (in mins)',
-             main = 'Histogram of waiting times')
+  output$dynamic_page <- renderUI({
+    if (current_page() == "upload") {
+      tagList(
+        mainPanel(
+        titlePanel("Syllabus Upload and Semester Dates"),
+        fileInput("Syllabus_Upload", "Upload Your Syllabus Here"),
+        dateRangeInput("semester_dates",
+                       "Select Your Semester Start and End Dates",
+                       start = default_start,
+                       end = default_end),
+        actionButton("submit_btn", "Submit")
+        )
+      )
+    } else {
+      tagList(
+        mainPanel(
+        titlePanel("Calender"),
+        actionButton("back_btn", "Go Back"),
+        verbatimTextOutput("extracted_text")
+      )
+      )
+    }
+  })
 
-    })
+  syllabus_data <- eventReactive(input$submit_btn, {
+    req(input$Syllabus_Upload)
+    file_path <- input$Syllabus_Upload$datapath
+    text <- pdf_text(file_path)
+  })
+  output$extracted_text <- renderText({
+    syllabus_data()
+  })
 
+
+  observeEvent(input$submit_btn, {
+    current_page("results")
+  })
+
+  observeEvent(input$back_btn, {
+    current_page("upload")
+  })
 }
