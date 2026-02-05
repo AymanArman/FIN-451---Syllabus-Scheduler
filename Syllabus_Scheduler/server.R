@@ -35,12 +35,17 @@ server <- function(input, output, session) {
       )
     } else {
       tagList(
-        mainPanel(
-        titlePanel("Calender"),
-        actionButton("back_btn", "Go Back"),
-        verbatimTextOutput("extracted_text")
-      )
-      )
+        sidebarLayout(
+          sidebarPanel(
+              tableOutput("calendar_tab")
+            ),
+            mainPanel(
+              titlePanel("Calender"),
+              verbatimTextOutput("extracted_text"),
+              actionButton("back_btn", "Go Back")
+            )
+          )
+        )
     }
   })
 
