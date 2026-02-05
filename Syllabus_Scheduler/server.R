@@ -11,6 +11,7 @@ library(shiny)
 library(lubridate)
 library(pdftools)
 library(tesseract)
+library(tibble)
 
 server <- function(input, output, session) {
 
@@ -43,13 +44,33 @@ server <- function(input, output, session) {
     }
   })
 
+  calendar_init <- eventReactive(input$semester_dates, {
+
+    start_date <- as.Date(input$semester_dates[1])
+    end_date <- as.Date(input$semester_dates[2])
+
+    tibble::tibble(date = format(seq.Date(from = start_date,
+                                               to = end_date,
+                                               by = 1), "%Y-%m-%d"),
+                   activity = "")
+
+  })
+
+
   syllabus_data <- eventReactive(input$submit_btn, {
     req(input$Syllabus_Upload)
     file_path <- input$Syllabus_Upload$datapath
     text <- pdf_text(file_path)
   })
+
+
+
   output$extracted_text <- renderText({
     syllabus_data()
+  })
+
+  output$calendar_tab <- renderTable({
+    calendar_init()
   })
 
 

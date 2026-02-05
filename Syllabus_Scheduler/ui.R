@@ -12,6 +12,7 @@ library(lubridate)
 
 fluidPage(
   mainPanel(
-    uiOutput("dynamic_page")
+    uiOutput("dynamic_page"),
+    tableOutput("calendar_tab")
   )
 )
