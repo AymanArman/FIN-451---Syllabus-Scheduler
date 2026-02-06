@@ -25,7 +25,16 @@ server <- function(input, output, session) {
       tagList(
         mainPanel(
         titlePanel("Syllabus Upload and Semester Dates"),
-        fileInput("Syllabus_Upload", "Upload Your Syllabus Here"),
+        selectInput(
+          inputId = "Fac_selection",
+          label = "Select Your Faculty Here",
+          choices = c("FIN", "ACCTG")
+          ),
+        selectInput(
+          inputId = "Course_selection",
+          label = "Select Your Course Number Here",
+          choices = NULL
+        ),
         dateRangeInput("semester_dates",
                        "Select Your Semester Start and End Dates",
                        start = default_start,
@@ -46,6 +55,15 @@ server <- function(input, output, session) {
             )
           )
         )
+    }
+  })
+  observeEvent(input$Fac_selection, {
+    if (input$Fac_selection == "FIN") {
+      updateSelectInput(session, "Course_selection",
+                        choices = c("201", "312", "322", "413", "414", "415", "416", "418", "430", "434", "436A", "436B", "440", "442", "445", "449", "450", "451", "452", "455", "460", "473", "480", "488", "495", "496", "497"))
+    } else if (input$Fac_selection == "ACCTG") {
+      updateSelectInput(session, "Course_selection",
+                        choices = c("200", "211", "222", "312", "314", "315", "324", "416", "418", "426", "432", "437", "456", "463", "467", "468", "480", "481", "488", "495", "496", "497"))
     }
   })
 
