@@ -70,6 +70,7 @@ server <- function(input, output, session) {
   })
 
   output$calendar_tab <- renderTable({
+    req(current_page() == "results")
     calendar_init()
   })
 

@@ -1,0 +1,32 @@
+---
+title: "Shiny_app_tester"
+format: 
+  html:
+    embed-resources: true
+editor: visual
+---
+
+## 
+
+```{r, include = FALSE}
+
+library(tidyverse)
+library(tesseract)
+library(pdftools)
+library(lubridate)
+library(tabulapdf)
+library(stringr)
+```
+
+Testing PNG to PDF text using tesseract
+
+```{r, echo = FALSE}
+
+pdf_path <- "./FIN413.pdf"
+
+tables <- tabulapdf::extract_tables(pdf_path,
+                                    pages = 2,
+                                    method = "stream") %>% 
+  as.data.frame(.)
+
+```
