@@ -39,6 +39,11 @@ server <- function(input, output, session) {
                        "Select Your Semester Start and End Dates",
                        start = default_start,
                        end = default_end),
+        numericInput("table_page",
+                     "Enter Page Containing Course Schedule",
+                     value = 1,
+                     min = 1,
+                     max = 20),
         actionButton("submit_btn", "Submit")
         )
       )
@@ -67,6 +72,19 @@ server <- function(input, output, session) {
     }
   })
 
+
+
+
+  syllabus_data <- eventReactive(input$submit_btn, {
+    req(input$Syllabus_Upload)
+    req(input$table_page)
+    file_path <- input$Syllabus_Upload$datapath
+    table <- tabulapdf::extract_tables(file_path,
+                                       pages = table_page,
+                                       method = "stream")
+  })
+
+
   calendar_init <- eventReactive(input$semester_dates, {
 
     start_date <- as.Date(input$semester_dates[1])
@@ -80,11 +98,22 @@ server <- function(input, output, session) {
   })
 
 
-  syllabus_data <- eventReactive(input$submit_btn, {
-    req(input$Syllabus_Upload)
-    file_path <- input$Syllabus_Upload$datapath
-    text <- pdf_text(file_path)
+
+  nlp_process <- reactive({
+
+
+    #can do nlp process in here
+
+    calendar <- calendar_init()
+
+    print(calendar)
+
+
+
+
+
   })
+
 
 
 
@@ -93,7 +122,8 @@ server <- function(input, output, session) {
   })
 
   output$calendar_tab <- renderTable({
-    calendar_init()
+    req(current_page() == "results")
+    nlp_process()
   })
 
 
