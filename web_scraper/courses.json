@@ -1,0 +1,549 @@
+[
+  {
+    "course_name": "FIN 201 - Introduction to Finance",
+    "course_code": "FIN",
+    "course_number": "201",
+    "course_ids": [
+      "81415",
+      "80621",
+      "80753",
+      "80754",
+      "80756",
+      "84436",
+      "81451",
+      "31140",
+      "31141"
+    ]
+  },
+  {
+    "course_name": "FIN 312 - Investment Principles",
+    "course_code": "FIN",
+    "course_number": "312",
+    "course_ids": [
+      "81416",
+      "80548",
+      "87895",
+      "86420",
+      "86421",
+      "30027",
+      "40791",
+      "40006"
+    ]
+  },
+  {
+    "course_name": "FIN 322 - Capital Investment",
+    "course_code": "FIN",
+    "course_number": "322",
+    "course_ids": [
+      "81418",
+      "81419",
+      "84368",
+      "85860",
+      "85861",
+      "86422"
+    ]
+  },
+  {
+    "course_name": "FIN 413 - Risk Management",
+    "course_code": "FIN",
+    "course_number": "413",
+    "course_ids": [
+      "80549",
+      "80550",
+      "81483",
+      "31197",
+      "30713",
+      "40792",
+      "40470"
+    ]
+  },
+  {
+    "course_name": "FIN 414 - Operation of Financial Institutions",
+    "course_code": "FIN",
+    "course_number": "414",
+    "course_ids": [
+      "81417",
+      "81444",
+      "80551"
+    ]
+  },
+  {
+    "course_name": "FIN 415 - Trading and Financial Markets",
+    "course_code": "FIN",
+    "course_number": "415",
+    "course_ids": []
+  },
+  {
+    "course_name": "FIN 416 - Advanced Portfolio Management",
+    "course_code": "FIN",
+    "course_number": "416",
+    "course_ids": [
+      "81439"
+    ]
+  },
+  {
+    "course_name": "FIN 418 - Fixed Income",
+    "course_code": "FIN",
+    "course_number": "418",
+    "course_ids": [
+      "81445",
+      "86872"
+    ]
+  },
+  {
+    "course_name": "FIN 430 - Corporate Financial Planning",
+    "course_code": "FIN",
+    "course_number": "430",
+    "course_ids": [
+      "80553"
+    ]
+  },
+  {
+    "course_name": "FIN 434 - Advanced Topics in Finance",
+    "course_code": "FIN",
+    "course_number": "434",
+    "course_ids": []
+  },
+  {
+    "course_name": "FIN 436B - Investment Management",
+    "course_code": "FIN",
+    "course_number": "436B",
+    "course_ids": [
+      "84364"
+    ]
+  },
+  {
+    "course_name": "FIN 436A - Investment Management",
+    "course_code": "FIN",
+    "course_number": "436A",
+    "course_ids": []
+  },
+  {
+    "course_name": "FIN 440 - Commodities Analytics and Trading",
+    "course_code": "FIN",
+    "course_number": "440",
+    "course_ids": []
+  },
+  {
+    "course_name": "FIN 442 - International Financial Markets",
+    "course_code": "FIN",
+    "course_number": "442",
+    "course_ids": [
+      "81420",
+      "81468",
+      "80554"
+    ]
+  },
+  {
+    "course_name": "FIN 445 - Sustainable Finance",
+    "course_code": "FIN",
+    "course_number": "445",
+    "course_ids": [
+      "89681"
+    ]
+  },
+  {
+    "course_name": "FIN 449 - FinTech I: Tools, Concepts, and Applications",
+    "course_code": "FIN",
+    "course_number": "449",
+    "course_ids": []
+  },
+  {
+    "course_name": "FIN 450 - FinTech II: Applied Data Science in Finance",
+    "course_code": "FIN",
+    "course_number": "450",
+    "course_ids": [
+      "85051"
+    ]
+  },
+  {
+    "course_name": "FIN 451 - FinTech III: Enterprise-level Data Science",
+    "course_code": "FIN",
+    "course_number": "451",
+    "course_ids": [
+      "86430"
+    ]
+  },
+  {
+    "course_name": "FIN 452 - Financial, Analytics and Trading",
+    "course_code": "FIN",
+    "course_number": "452",
+    "course_ids": [
+      "87904"
+    ]
+  },
+  {
+    "course_name": "FIN 455 - Financial Modelling",
+    "course_code": "FIN",
+    "course_number": "455",
+    "course_ids": [
+      "86431",
+      "86432"
+    ]
+  },
+  {
+    "course_name": "FIN 460 - Private Market Finance",
+    "course_code": "FIN",
+    "course_number": "460",
+    "course_ids": [
+      "86433"
+    ]
+  },
+  {
+    "course_name": "FIN 473 - Mergers, Restructuring, and Corporate Control",
+    "course_code": "FIN",
+    "course_number": "473",
+    "course_ids": [
+      "87905",
+      "88550"
+    ]
+  },
+  {
+    "course_name": "FIN 480 - Honours Essay in Finance",
+    "course_code": "FIN",
+    "course_number": "480",
+    "course_ids": []
+  },
+  {
+    "course_name": "FIN 488 - Selected Topics in Finance",
+    "course_code": "FIN",
+    "course_number": "488",
+    "course_ids": [
+      "88410"
+    ]
+  },
+  {
+    "course_name": "FIN 495 - Individual Research Project I",
+    "course_code": "FIN",
+    "course_number": "495",
+    "course_ids": [
+      "81421"
+    ]
+  },
+  {
+    "course_name": "FIN 496 - Individual Research Project II",
+    "course_code": "FIN",
+    "course_number": "496",
+    "course_ids": [
+      "81422"
+    ]
+  },
+  {
+    "course_name": "FIN 497 - Individual Research Project III",
+    "course_code": "FIN",
+    "course_number": "497",
+    "course_ids": [
+      "81423"
+    ]
+  },
+  {
+    "course_name": "FIN 501 - Managerial Finance",
+    "course_code": "FIN",
+    "course_number": "501",
+    "course_ids": [
+      "80556",
+      "81489"
+    ]
+  },
+  {
+    "course_name": "FIN 501A - Managerial Finance",
+    "course_code": "FIN",
+    "course_number": "501A",
+    "course_ids": []
+  },
+  {
+    "course_name": "FIN 501B - Managerial Finance",
+    "course_code": "FIN",
+    "course_number": "501B",
+    "course_ids": []
+  },
+  {
+    "course_name": "FIN 604 - The Practice of Investment Banking",
+    "course_code": "FIN",
+    "course_number": "604",
+    "course_ids": []
+  },
+  {
+    "course_name": "FIN 614 - Investments",
+    "course_code": "FIN",
+    "course_number": "614",
+    "course_ids": []
+  },
+  {
+    "course_name": "FIN 615 - Trading and Financial Markets",
+    "course_code": "FIN",
+    "course_number": "615",
+    "course_ids": []
+  },
+  {
+    "course_name": "FIN 616 - Securities Markets and Financial Intermediation",
+    "course_code": "FIN",
+    "course_number": "616",
+    "course_ids": []
+  },
+  {
+    "course_name": "FIN 618 - Fixed Income",
+    "course_code": "FIN",
+    "course_number": "618",
+    "course_ids": [
+      "88600"
+    ]
+  },
+  {
+    "course_name": "FIN 625 - Finance in Professional Accounting",
+    "course_code": "FIN",
+    "course_number": "625",
+    "course_ids": [
+      "31397"
+    ]
+  },
+  {
+    "course_name": "FIN 634 - Corporate Financial Planning",
+    "course_code": "FIN",
+    "course_number": "634",
+    "course_ids": []
+  },
+  {
+    "course_name": "FIN 635 - Venture Capital",
+    "course_code": "FIN",
+    "course_number": "635",
+    "course_ids": []
+  },
+  {
+    "course_name": "FIN 640 - Commodities Analytics and Trading",
+    "course_code": "FIN",
+    "course_number": "640",
+    "course_ids": []
+  },
+  {
+    "course_name": "FIN 644 - International Finance",
+    "course_code": "FIN",
+    "course_number": "644",
+    "course_ids": []
+  },
+  {
+    "course_name": "FIN 654 - Risk Management",
+    "course_code": "FIN",
+    "course_number": "654",
+    "course_ids": [
+      "89510"
+    ]
+  },
+  {
+    "course_name": "FIN 657 - New Enterprise Finance",
+    "course_code": "FIN",
+    "course_number": "657",
+    "course_ids": []
+  },
+  {
+    "course_name": "FIN 658 - Creative Destruction Lab - Rockies",
+    "course_code": "FIN",
+    "course_number": "658",
+    "course_ids": [
+      "87453"
+    ]
+  },
+  {
+    "course_name": "FIN 673 - Mergers, Restructuring, and Corporate Control",
+    "course_code": "FIN",
+    "course_number": "673",
+    "course_ids": [
+      "88595"
+    ]
+  },
+  {
+    "course_name": "FIN 686 - Selected Topics in Finance",
+    "course_code": "FIN",
+    "course_number": "686",
+    "course_ids": [
+      "88411"
+    ]
+  },
+  {
+    "course_name": "FIN 701 - Asset Pricing",
+    "course_code": "FIN",
+    "course_number": "701",
+    "course_ids": []
+  },
+  {
+    "course_name": "FIN 702 - Corporate Finance",
+    "course_code": "FIN",
+    "course_number": "702",
+    "course_ids": []
+  },
+  {
+    "course_name": "FIN 703 - Quantitative Finance",
+    "course_code": "FIN",
+    "course_number": "703",
+    "course_ids": [
+      "88601"
+    ]
+  },
+  {
+    "course_name": "FIN 704 - Individual Research",
+    "course_code": "FIN",
+    "course_number": "704",
+    "course_ids": [
+      "89850"
+    ]
+  },
+  {
+    "course_name": "FIN 705A - Research Seminar in Finance",
+    "course_code": "FIN",
+    "course_number": "705A",
+    "course_ids": []
+  },
+  {
+    "course_name": "FIN 705B - Research Seminar in Finance",
+    "course_code": "FIN",
+    "course_number": "705B",
+    "course_ids": [
+      "81452"
+    ]
+  },
+  {
+    "course_name": "FIN 800 - Finance",
+    "course_code": "FIN",
+    "course_number": "800",
+    "course_ids": []
+  },
+  {
+    "course_name": "FIN 801 - Introduction to Finance",
+    "course_code": "FIN",
+    "course_number": "801",
+    "course_ids": [
+      "89622",
+      "89628"
+    ]
+  },
+  {
+    "course_name": "FIN 802 - Financial Analysis and Decision Making",
+    "course_code": "FIN",
+    "course_number": "802",
+    "course_ids": []
+  },
+  {
+    "course_name": "FIN 804 - China Investment Banking",
+    "course_code": "FIN",
+    "course_number": "804",
+    "course_ids": [
+      "89635",
+      "89637"
+    ]
+  },
+  {
+    "course_name": "FIN 806 - Investment Principles",
+    "course_code": "FIN",
+    "course_number": "806",
+    "course_ids": [
+      "89623",
+      "89630"
+    ]
+  },
+  {
+    "course_name": "FIN 807 - Corporate Finance and Valuation",
+    "course_code": "FIN",
+    "course_number": "807",
+    "course_ids": [
+      "89633"
+    ]
+  },
+  {
+    "course_name": "FIN 808 - Financial Risk Management",
+    "course_code": "FIN",
+    "course_number": "808",
+    "course_ids": [
+      "89632"
+    ]
+  },
+  {
+    "course_name": "FIN 809 - M&A and Corporate Restructuring",
+    "course_code": "FIN",
+    "course_number": "809",
+    "course_ids": [
+      "89631"
+    ]
+  },
+  {
+    "course_name": "FIN 815 - Financial Analysis and Decision Making",
+    "course_code": "FIN",
+    "course_number": "815",
+    "course_ids": []
+  },
+  {
+    "course_name": "FIN 818 - Fixed Income",
+    "course_code": "FIN",
+    "course_number": "818",
+    "course_ids": []
+  },
+  {
+    "course_name": "FIN 821 - Financial Accounting",
+    "course_code": "FIN",
+    "course_number": "821",
+    "course_ids": [
+      "89625",
+      "89629"
+    ]
+  },
+  {
+    "course_name": "FIN 821 - Financial Accounting",
+    "course_code": "FIN",
+    "course_number": "821",
+    "course_ids": [
+      "89625",
+      "89629"
+    ]
+  },
+  {
+    "course_name": "FIN 822 - Financial Statement Analysis",
+    "course_code": "FIN",
+    "course_number": "822",
+    "course_ids": []
+  },
+  {
+    "course_name": "FIN 823 - Financial Markets and Assets",
+    "course_code": "FIN",
+    "course_number": "823",
+    "course_ids": []
+  },
+  {
+    "course_name": "FIN 826 - Sustainable Finance",
+    "course_code": "FIN",
+    "course_number": "826",
+    "course_ids": []
+  },
+  {
+    "course_name": "FIN 830 - Finance",
+    "course_code": "FIN",
+    "course_number": "830",
+    "course_ids": [
+      "89463"
+    ]
+  },
+  {
+    "course_name": "FIN 866 - International Finance",
+    "course_code": "FIN",
+    "course_number": "866",
+    "course_ids": [
+      "89634"
+    ]
+  },
+  {
+    "course_name": "FIN 886 - History of Finance",
+    "course_code": "FIN",
+    "course_number": "886",
+    "course_ids": [
+      "89626"
+    ]
+  },
+  {
+    "course_name": "FIN 888 - Strategic Financial Management",
+    "course_code": "FIN",
+    "course_number": "888",
+    "course_ids": [
+      "89627",
+      "89636",
+      "89638"
+    ]
+  }
+]
