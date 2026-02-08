@@ -15,11 +15,6 @@ library(tibble)
 
 server <- function(input, output, session) {
 
-  current_page <- reactiveVal("upload")
-
-  default_start <- Sys.Date()
-  default_end <- default_start %m+% months(4)
-
   output$course_number_dropdown <- renderUI({
     req(input$course)
     course_number_choices <- course_data %>%
@@ -43,7 +38,84 @@ server <- function(input, output, session) {
     actionButton("submit_button","Submit")
   })
 
-#######################################################################3
+
+  # observeEvent(input$course, {
+  #   course_number_choices <- course_data %>%
+  #     dplyr::filter(course_code == input$course) %>%
+  #     pull(course_number)
+  #   updateSelectInput("course_number_pick", "Select Course Number", course_number_choices)
+  # })
+  #
+  # observeEvent(input$course_number_pick, {
+  #   course_id_choices <- course_data %>%
+  #     dplyr::filter(course_code == input$course,
+  #                   course_number == input$course_number_pick) %>%
+  #     pull(course_ids) %>%
+  #     unlist()
+  #   updateSelectInput("course_id_pick", "Select Course ID", course_id_choices)
+  # })
+
+
+  ## Checking to see how long it takes to dynamically download and run OCR while user is using the app
+
+  observeEvent(input$submit_button, {
+    base_url <- "https://apps.ualberta.ca/catalogue/syllabus/download/"
+
+    download_url <- paste0(base_url, "1940", input$course_id)
+    file_name <- paste0(input$course_id, ".pdf")
+
+    # base_dir <- file.path(getwd(), "syllabus_downloads")
+    # course_dir <- file.path(base_dir, input$course)
+    # course_number_dir <- file.path(course_dir, input$course_number_pick)
+    # file_path <- file.path(course_number_dir, file_name)
+    #
+    # if (!dir.exists(course_dir)) {
+    #   dir.create(course_dir)
+    # }
+    #
+    # if (!dir.exists(course_number_dir)) {
+    #   dir.create(course_number_dir)
+    # }
+    #
+    # if (!file.exists(file_path)) {
+    #   download.file(download_url, file_path)
+    # }
+
+    print(Sys.time())
+    base_dir <- file.path(getwd())
+    cache_dir <- file.path(base_dir, "dl_cache")
+    file_path <- file.path(cache_dir, file_name)
+
+    if (!dir.exists(cache_dir)) {
+      dir.create(cache_dir)
+    }
+
+    file_path
+
+    download.file(download_url, file_path, mode ="wb")
+
+    img_file <- pdftools::pdf_convert(file_path)
+    pdf_text <- ocr(img_file)
+
+    # Delete the pngs and the pdf file
+    unlink(img_file)
+    unlink(file_path)
+
+    print(pdf_text)
+    print(paste0("DONE: ",Sys.time()))
+
+    ## Downloading and converting to text with OCR after submit
+    ## currently takes ~10.2 seconds before any text matching.
+
+  })
+
+
+#######################################################################
+
+  current_page <- reactiveVal("upload")
+
+  default_start <- Sys.Date()
+  default_end <- default_start %m+% months(4)
 
   output$dynamic_page <- renderUI({
     if (current_page() == "upload") {
