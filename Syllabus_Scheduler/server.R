@@ -20,6 +20,31 @@ server <- function(input, output, session) {
   default_start <- Sys.Date()
   default_end <- default_start %m+% months(4)
 
+  output$course_number_dropdown <- renderUI({
+    req(input$course)
+    course_number_choices <- course_data %>%
+      dplyr::filter(course_code == input$course) %>%
+      pull(course_number)
+    selectInput("course_number_pick", "Select Course Number", course_number_choices)
+  })
+
+  output$course_id_dropdown <- renderUI({
+    req(input$course_number_pick)
+    course_id_choices <- course_data %>%
+      dplyr::filter(course_code == input$course,
+                    course_number == input$course_number_pick) %>%
+      pull(course_ids) %>%
+      unlist()
+    selectInput("course_id", "Select Course ID", choices = course_id_choices)
+  })
+
+  output$submit_button <- renderUI({
+    req(input$course_id)
+    actionButton("submit_button","Submit")
+  })
+
+#######################################################################3
+
   output$dynamic_page <- renderUI({
     if (current_page() == "upload") {
       tagList(

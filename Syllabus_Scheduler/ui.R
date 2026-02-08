@@ -9,9 +9,31 @@
 
 library(shiny)
 library(lubridate)
+library(bslib)
 
-fluidPage(
-  mainPanel(
-    uiOutput("dynamic_page")
+page_fillable(
+  titlePanel("Syllabus Event Creator"),
+  layout_columns(
+    card(
+      card_header("Select Course Code"),
+      selectInput("course","Select Course Code", course_data$course_code),
+      uiOutput("course_number_dropdown"),
+      uiOutput("course_id_dropdown"),
+      uiOutput("submit_button")
+      ),
+    card(
+      card_header("Upload PDF"),
+      fileInput("file_input","Upload a PDF", accept = ".pdf")
+    )
   )
 )
+
+
+###################
+#
+# fluidPage(
+#   mainPanel(
+#     uiOutput("dynamic_page")
+#   )
+# )
+
