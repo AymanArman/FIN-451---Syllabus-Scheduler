@@ -157,7 +157,23 @@
     ]
   },
   {
+    "course_name": "FIN 450 - Foundations of Data Science in Finance",
+    "course_code": "FIN",
+    "course_number": "450",
+    "course_ids": [
+      "85051"
+    ]
+  },
+  {
     "course_name": "FIN 451 - FinTech III: Enterprise-level Data Science",
+    "course_code": "FIN",
+    "course_number": "451",
+    "course_ids": [
+      "86430"
+    ]
+  },
+  {
+    "course_name": "FIN 451 - Advanced Data Science in Finance",
     "course_code": "FIN",
     "course_number": "451",
     "course_ids": [
