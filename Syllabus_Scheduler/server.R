@@ -31,16 +31,65 @@ process_pdf <- function(file_path) {
       date = mdy(str_extract(raw,
                              "(Jan|Feb|Mar|Apr|May|Jun|Jul|Aug|Sep|Oct|Nov|Dec)[a-z]*\\s+\\d{1,2},\\s+\\d{4}"
       )),
+
+      # Extract time ranges like 9:00 AM - 10:15 AM
+      time_range = str_extract(raw,
+                               "\\d{1,2}(:\\d{2})?\\s?(AM|PM)?\\s?[-–to]+\\s?\\d{1,2}(:\\d{2})?\\s?(AM|PM)?"
+      ),
+
+      # Extract single time if no range
+      single_time = str_extract(raw,
+                                "\\d{1,2}(:\\d{2})?\\s?(AM|PM)"
+      ),
+
       event_type = case_when(
         str_detect(raw, regex("exam", TRUE)) ~ "Exam",
         str_detect(raw, regex("assignment", TRUE)) ~ "Assignment",
         str_detect(raw, regex("quiz", TRUE)) ~ "Quiz",
         TRUE ~ "Lecture"
       ),
-      title = str_trim(str_remove(raw, ".*\\d{4}"))
-    ) %>%
-    select(event_type, title, start_date = date)
 
+      title = str_trim(str_remove(raw, ".*\\d{4}[:\\-\\s]*"))
+    )
+
+  training_set <- training_set %>%
+    rowwise() %>%
+    mutate(
+      start_date = {
+
+        if (!is.na(time_range)) {
+
+          times <- str_split(time_range, "[-–to]+")[[1]]
+          parsed_time <- parse_date_time(times[1], orders = c("I:M p", "I p"))
+          as.POSIXct(date, tz = "America/Edmonton") + hours(hour(parsed_time)) + minutes(minute(parsed_time))
+
+        } else if (!is.na(single_time)) {
+
+          parsed_time <- parse_date_time(single_time, orders = c("I:M p", "I p"))
+          as.POSIXct(date, tz = "America/Edmonton") + hours(hour(parsed_time)) + minutes(minute(parsed_time))
+
+        } else {
+
+          # Default if no time found
+          as.POSIXct(date, tz = "America/Edmonton") + hours(12)
+        }
+      },
+
+      end_date = {
+
+        if (!is.na(time_range)) {
+
+          times <- str_split(time_range, "[-–to]+")[[1]]
+          parsed_time <- parse_date_time(times[2], orders = c("I:M p", "I p"))
+          as.POSIXct(date, tz = "America/Edmonton") + hours(hour(parsed_time)) + minutes(minute(parsed_time))
+
+        } else {
+
+          start_date + hours(1)
+        }
+      }
+    ) %>%
+    ungroup()
   return(training_set)
 }
 
@@ -241,17 +290,6 @@ server <- function(input, output, session) {
     #
 
     # Delete the pngs and the pdf file
-
-  output$schedule_table <- renderTable({
-    req(calendar_data())
-
-    calendar_data() %>%
-      arrange(start_date) %>%
-      select(Date = start_date, Type = event_type, Event = title)
-  })
-  output$schedule_calendar <- renderCalendar({
-    calendar(calendar_ready(), navigation = TRUE)
-  })
   calendar_ready <- reactive({
     req(calendar_data())
 
@@ -260,17 +298,38 @@ server <- function(input, output, session) {
         id = row_number(),
         calendarId = event_type,
         category = "time",
-        start = format(start_date, "%Y-%m-%d"),
-        end = format(start_date, "%Y-%m-%d"),
+
+        start = format(start_date, "%Y-%m-%dT%H:%M:%S"),
+        end   = format(end_date, "%Y-%m-%dT%H:%M:%S"),
+
         backgroundColor = case_when(
           event_type == "Exam" ~ "#FF6B6B",
           event_type == "Assignment" ~ "#4ECDC4",
           event_type == "Quiz" ~ "#FFE66D",
+          event_type == "Lecture" ~"#A020F0",
           TRUE ~ "#95E1D3"
         ),
+
         borderColor = backgroundColor
       )
   })
+
+
+  output$schedule_table <- renderTable({
+    req(calendar_data())
+
+    calendar_data() %>%
+      arrange(start_date) %>%
+      mutate(
+        start_date = format(start_date, "%Y-%m-%d")
+      ) %>%
+      select(Type = event_type, Title = title, `Start Date` = start_date, `End Date` = end_date)
+
+  })
+  output$schedule_calendar <- renderCalendar({
+    calendar(calendar_ready(), navigation = TRUE)
+  })
+
     observeEvent(input$back_button, {
       nav_select("navbar", selected = "Upload")
     })
