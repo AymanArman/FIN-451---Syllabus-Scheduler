@@ -15,43 +15,9 @@ library(tibble)
 library(tidyverse)
 library(stringr)
 
-#OCR Processing as a function so that we can use the same logic for both the selected courses and the pdf uplaod
-process_pdf <- function(file_path) {
-
-  text <- pdf_text(file_path)
-  text <- paste(text, collapse = "\n")
-
-  date_lines <- str_extract_all(
-    text,
-    "(Jan|Feb|Mar|Apr|May|Jun|Jul|Aug|Sep|Oct|Nov|Dec)[a-z]*\\s+\\d{1,2},\\s+\\d{4}.*"
-  )[[1]]
-
-  training_set <- tibble(raw = date_lines) %>%
-    mutate(
-      date = mdy(str_extract(raw,
-                             "(Jan|Feb|Mar|Apr|May|Jun|Jul|Aug|Sep|Oct|Nov|Dec)[a-z]*\\s+\\d{1,2},\\s+\\d{4}"
-      )),
-      event_type = case_when(
-        str_detect(raw, regex("exam", TRUE)) ~ "Exam",
-        str_detect(raw, regex("assignment", TRUE)) ~ "Assignment",
-        str_detect(raw, regex("quiz", TRUE)) ~ "Quiz",
-        TRUE ~ "Lecture"
-      ),
-      title = str_trim(str_remove(raw, ".*\\d{4}"))
-    ) %>%
-    select(event_type, title, start_date = date)
-
-  return(training_set)
-}
-
-
 server <- function(input, output, session) {
 
   calendar_data <- reactiveVal(NULL)
-
-  observe({
-    print(paste("Current page:", input$navbar))
-  })
 
   output$course_number_dropdown <- renderUI({
     req(input$course)
@@ -81,19 +47,6 @@ server <- function(input, output, session) {
     actionButton("submit_upload", "Submit PDF")
   })
 
-  output$back_button <- renderUI({
-    actionButton("back_button", "Back to Upload")
-  })
-
-  output$back_button1 <- renderUI({
-    actionButton("back_button1", "Back to Upload")
-  })
-  output$table_button <- renderUI({
-    actionButton("table_button", "See Table")
-  })
-  output$calendar_button <- renderUI({
-    actionButton("calendar_button", "See Calendar")
-  })
 
   # observeEvent(input$course, {
   #   course_number_choices <- course_data %>%
@@ -165,27 +118,37 @@ server <- function(input, output, session) {
     ## Downloading and converting to text with OCR after submit
     ## currently takes ~10.2 seconds before any text matching.
 
-    training_set <- process_pdf(file_path)
+    text <- pdf_text(file_path)
+    text <- paste(text, collapse = "\n")
+
+    date_lines <- str_extract_all(
+      text,
+      "(Jan|Feb|Mar|Apr|May|Jun|Jul|Aug|Sep|Oct|Nov|Dec)[a-z]*\\s+\\d{1,2},\\s+\\d{4}.*"
+    )[[1]]
+
+    training_set <- tibble(raw = date_lines) %>%
+      mutate(
+        date = mdy(str_extract(raw, "(Jan|Feb|Mar|Apr|May|Jun|Jul|Aug|Sep|Oct|Nov|Dec)[a-z]*\\s+\\d{1,2},\\s+\\d{4}")),
+        event_type = case_when(
+          str_detect(raw, regex("exam", TRUE)) ~ "Exam",
+          str_detect(raw, regex("assignment", TRUE)) ~ "Assignment",
+          str_detect(raw, regex("quiz", TRUE)) ~ "Quiz",
+          TRUE ~ "Lecture"
+        ),
+        title = str_trim(str_remove(raw, ".*\\d{4}"))
+      ) %>%
+      select(event_type, title, start_date = date)
 
     print(training_set)
-    calendar_data(training_set)
     unlink(file_path)
-    nav_select("navbar", selected = "Results - Calendar")
-  })
-
-#Pdf Upload Workflow
-  observeEvent(input$submit_upload, {
-
-    req(input$file_input)
-
-    file_path <- input$file_input$datapath
-
-    training_set <- process_pdf(file_path)
-
     calendar_data(training_set)
+      })
 
-    nav_select("navbar", selected = "Results - Calendar")
-  })
+  # Prepare data for calendar
+
+
+
+
 
     #########################################
 
@@ -239,17 +202,7 @@ server <- function(input, output, session) {
     #
 
     # Delete the pngs and the pdf file
-
-  output$schedule_table <- renderTable({
-    req(calendar_data())
-
-    calendar_data() %>%
-      arrange(start_date) %>%
-      select(Date = start_date, Type = event_type, Event = title)
-  })
-  output$schedule_calendar <- renderCalendar({
-    calendar(calendar_ready(), navigation = TRUE)
-  })
+  # Prepare data for calendar
   calendar_ready <- reactive({
     req(calendar_data())
 
@@ -269,21 +222,14 @@ server <- function(input, output, session) {
         borderColor = backgroundColor
       )
   })
-    observeEvent(input$back_button, {
-      nav_select("navbar", selected = "Upload")
-    })
-    observeEvent(input$back_button1, {
-      nav_select("navbar", selected = "Upload")
-    })
-    observeEvent(input$table_button, {
-      nav_select("navbar", selected = "Results - Table")
-    })
-    observeEvent(input$calendar_button, {
-      nav_select("navbar", selected = "Results - Calendar")
-    })
-}
 
-
-
+  # Render calendar
+  output$schedule_calendar <- renderCalendar({
+    calendar(calendar_ready(), navigation = TRUE)
+  })
+  output$schedule_table <- renderTable({
+    calendar_data
+  })
+  }
 
 
