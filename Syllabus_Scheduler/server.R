@@ -184,6 +184,8 @@ server <- function(input, output, session) {
 
     calendar_data(training_set)
 
+    unlink(file_path)
+
     nav_select("navbar", selected = "Results - Calendar")
   })
 
