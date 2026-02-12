@@ -2,6 +2,7 @@ library(jsonlite)
 library(dplyr)
 library(purrr)
 library(here)
+library(tidyr)
 
 course_data <- jsonlite::fromJSON(here("web_scraper","courses.json")) %>%
   dplyr::filter(purrr::map_lgl(course_ids, ~ length(.x) > 0))  %>% # Remove all the rows that don't have a course id"
