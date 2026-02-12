@@ -20,6 +20,14 @@ COPY --from=builder /tmp/web_scraper /srv/shiny-server/Syllabus_Scheduler/web_sc
 
 
 RUN apt-get update && apt-get install -y \
+	libfreetype6-dev\
+	libpng-dev\
+	libtiff5-dev \
+	libjpeg-dev \
+	libwebp-dev \
+	libharfbuzz-dev \
+	libfribidi-dev \
+	libfontconfig1-dev \
 	libssl-dev \
 	libcurl4-gnutls-dev \
 	libxml2-dev \
@@ -29,6 +37,8 @@ RUN apt-get update && apt-get install -y \
 	libpoppler-cpp-dev \
 	poppler-data
 	
+
+RUN R -e "install.packages(c('textshaping','ragg'), repos = 'https://packagemanager.rstudio.com/cran/latest')"
 
 RUN R -e "install.packages(c('jsonlite','tidyverse', 'here', 'lubridate', 'pdftools', 'tesseract', 'bslib', 'toastui'), dependencies = TRUE, repos = 'https://packagemanager.rstudio.com/cran/latest')" 
 
