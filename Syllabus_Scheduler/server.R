@@ -166,7 +166,9 @@ server <- function(input, output, session) {
     base_url <- "https://apps.ualberta.ca/catalogue/syllabus/download/"
 
     course_id <- course_data %>%
-      dplyr::filter(course_section_choices == input$course_section) %>%
+      dplyr::filter(course_code == input$course,
+                    course_number == input$course_number_pick,
+                    course_section_choices == input$course_section) %>%
       pull(course_ids)
 
     download_url <- paste0(base_url, "1940", course_id)
