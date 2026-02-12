@@ -51,13 +51,29 @@ async function scrape_ids(url, courses) {
 
     const $ = cheerio.load(html);
 
+    course.course_section = [];
     course.course_ids = [];
+    course.course_dates = [];
+    course.course_times = [];
 
-    $('[data-card-title="Section"]').each((_i, el) => { // element CSS selector to find all the different rows 
-      const text = $(el).text(); 
-      const id = text.match(/\((\d+)\)/) // regex pattern to match group of digits inside '()' 
-      course.course_ids.push(id[1]); // the first match group is without the '()' 
-      });
+    $('[data-card-title="Section"]').each((_i, el) => {
+      const text = $(el).text().trim();
+
+      const sectionMatch = text.match(/(([A-Z]\d{2,3})|\d+)/);
+      const idMatch = text.match(/\((\d+)\)/);
+      course.course_section.push(sectionMatch[1]);
+      course.course_ids.push(idMatch[1]);
+    });
+
+    $('.row.row-cols-1.row-cols-lg-3').each((_i, row) => {
+      const cols = $(row).children('.col');
+
+      course.course_dates.push($(cols[0]).text().trim());
+      course.course_times.push($(cols[1]).text().trim());
+    });
+
+    console.log(course);
+
 
     //console.log("Course ID's")
     //console.log(course_ids)
