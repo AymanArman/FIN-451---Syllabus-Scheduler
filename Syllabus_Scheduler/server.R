@@ -117,15 +117,8 @@ server <- function(input, output, session) {
                     course_number == input$course_number_pick) %>%
       dplyr::mutate(course_section_choice = paste0(course_section, " ", course_dates, " ", course_times)) %>%
       pull(course_section_choice)
-    selectInput("course_id", "Select Course ID", choices = course_section_choices)
+    selectInput("course_id", "Select Course Section", choices = course_section_choices)
   })
-
-  # course_section_choices <- course_data %>%
-  #   dplyr::filter(course_code == 'FIN',
-  #                 course_number == '201') %>%
-  #   dplyr::mutate(course_section_choice = paste0(course_section, " ", course_dates, " ", course_times)) %>%
-  #   pull(course_section_choice) %>%
-  #   unlist()
 
   output$submit_button <- renderUI({
     req(input$course_id)
