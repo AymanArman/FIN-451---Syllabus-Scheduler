@@ -327,7 +327,7 @@ server <- function(input, output, session) {
 
   })
   output$schedule_calendar <- renderCalendar({
-    calendar(calendar_ready(), navigation = TRUE)
+    calendar(calendar_data, navigation = TRUE)
   })
 
     observeEvent(input$back_button, {
