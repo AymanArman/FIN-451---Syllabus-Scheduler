@@ -115,13 +115,12 @@ server <- function(input, output, session) {
     course_section_choices <- course_data %>%
       dplyr::filter(course_code == input$course,
                     course_number == input$course_number_pick) %>%
-      dplyr::mutate(course_section_choice = paste0(course_section, " ", course_dates, " ", course_times)) %>%
-      pull(course_section_choice)
-    selectInput("course_id", "Select Course Section", choices = course_section_choices)
+      pull(course_section_choices)
+    selectInput("course_section", "Select Course Section", choices = course_section_choices)
   })
 
   output$submit_button <- renderUI({
-    req(input$course_id)
+    req(input$course_section)
     actionButton("submit_button","Submit")
   })
 
@@ -166,8 +165,12 @@ server <- function(input, output, session) {
   observeEvent(input$submit_button, {
     base_url <- "https://apps.ualberta.ca/catalogue/syllabus/download/"
 
-    download_url <- paste0(base_url, "1940", input$course_id)
-    file_name <- paste0(input$course_id, ".pdf")
+    course_id <- course_data %>%
+      dplyr::filter(course_section_choices == input$course_section) %>%
+      pull(course_ids)
+
+    download_url <- paste0(base_url, "1940", course_id)
+    file_name <- paste0(course_id, ".pdf")
 
     # base_dir <- file.path(getwd(), "syllabus_downloads")
     # course_dir <- file.path(base_dir, input$course)
