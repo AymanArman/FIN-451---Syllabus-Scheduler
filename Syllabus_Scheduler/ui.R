@@ -7,32 +7,9 @@
 #    https://shiny.posit.co/
 #
 
-library(shiny)
 library(lubridate)
-library(bslib)
 library(shiny)
 library(shinyjs)
-# page_fillable(
-#   titlePanel("Syllabus Event Creator"),
-#   layout_columns(
-#     card(
-#       card_header("Select Course Code"),
-#       selectInput("course","Select Course Code", course_data$course_code),
-#       uiOutput("course_number_dropdown"),
-#       uiOutput("course_id_dropdown"),
-#       uiOutput("submit_button")
-#       ),
-#     card(
-#       card_header("Upload PDF"),
-#       fileInput("file_input","Upload a PDF", accept = ".pdf")
-#     )
-#   )
-# )
-
-###########################################
-
-library(shiny)
-library(lubridate)
 library(bslib)
 library(toastui)
 
@@ -100,13 +77,3 @@ page_navbar(
     row_heights = c(4,1)
     )
   )
-
-
-
-##########################################
-#
-# fluidPage(
-#   mainPanel(
-#     uiOutput("dynamic_page")
-#   )
-# )
