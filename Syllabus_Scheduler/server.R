@@ -216,6 +216,12 @@ server <- function(input, output, session) {
     start_semester <- as.Date(input$semester_dates[1])
     end_semester <- as.Date(input$semester_dates[2])
 
+    shiny::validate(
+      shiny::need(!is.na(start_semester) && !is.na(end_semester),
+           "Please select both a start and end date."),
+      shiny::need(start_semester <= end_semester,
+          "Start date must be before or equal to the end date."))
+
     # Parse the course times and dates from the scraped data
     class_info <- course_data %>%
       filter(
@@ -280,6 +286,12 @@ server <- function(input, output, session) {
     # Get the selected semester dates
     start_semester <- as.Date(input$semester_dates[1])
     end_semester <- as.Date(input$semester_dates[2])
+
+    shiny::validate(
+      shiny::need(!is.na(start_semester) && !is.na(end_semester),
+           "Please select both a start and end date."),
+      shiny::need(start_semester <= end_semester,
+           "Start date must be before or equal to the end date."))
 
     # Parse the course times and dates from the scraped data
     class_info <- course_data %>%
