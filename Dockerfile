@@ -40,7 +40,7 @@ RUN apt-get update && apt-get install -y \
 
 RUN R -e "install.packages(c('textshaping','ragg'), repos = 'https://packagemanager.rstudio.com/cran/latest')"
 
-RUN R -e "install.packages(c('jsonlite','tidyverse', 'here', 'lubridate', 'pdftools', 'tesseract', 'bslib', 'toastui'), dependencies = TRUE, repos = 'https://packagemanager.rstudio.com/cran/latest')" 
+RUN R -e "install.packages(c('jsonlite','tidyverse', 'here', 'lubridate', 'pdftools', 'tesseract', 'bslib', 'toastui', 'shinyjs'), dependencies = TRUE, repos = 'https://packagemanager.rstudio.com/cran/latest')" 
 
 RUN chown -R shiny:shiny /srv/shiny-server/Syllabus_Scheduler
 
