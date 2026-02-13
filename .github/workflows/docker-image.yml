@@ -2,9 +2,9 @@ name: Docker Image CI
 
 on:
   push:
-    paths:
-      - '**/*.json'
-      - '**/*.R'
+    #paths:
+      #- '**/*.json'
+      #- '**/*.R'
     branches: [ "main" ]
 
 jobs:
