@@ -19,32 +19,95 @@ library(shinyjs)
 
 
 #OCR Processing as a function so that we can use the same logic for both the selected courses and the pdf uplaod
-process_pdf <- function(file_path) {
+# process_pdf <- function(file_path) {
+#
+#   text <- pdf_text(file_path)
+#   text <- paste(text, collapse = "\n")
+#
+#   date_lines <- str_extract_all(
+#     text,
+#     "(Jan|Feb|Mar|Apr|May|Jun|Jul|Aug|Sep|Oct|Nov|Dec)[a-z]*\\s+\\d{1,2},\\s+\\d{4}.*"
+#   )[[1]]
+#
+#   training_set <- tibble(raw = date_lines) %>%
+#     mutate(
+#       date = mdy(str_extract(raw,
+#                              "(Jan|Feb|Mar|Apr|May|Jun|Jul|Aug|Sep|Oct|Nov|Dec)[a-z]*\\s+\\d{1,2},\\s+\\d{4}"
+#       )),
+#       event_type = case_when(
+#         str_detect(raw, regex("exam", TRUE)) ~ "Exam",
+#         str_detect(raw, regex("assignment", TRUE)) ~ "Assignment",
+#         str_detect(raw, regex("quiz", TRUE)) ~ "Quiz",
+#         TRUE ~ "Lecture"
+#       ),
+#       title = str_trim(str_remove(raw, ".*\\d{4}"))
+#     ) %>%
+#     select(event_type, title, start_date = date)
+#
+#   return(training_set)
+# }
 
-  text <- pdf_text(file_path)
-  text <- paste(text, collapse = "\n")
 
-  date_lines <- str_extract_all(
-    text,
-    "(Jan|Feb|Mar|Apr|May|Jun|Jul|Aug|Sep|Oct|Nov|Dec)[a-z]*\\s+\\d{1,2},\\s+\\d{4}.*"
-  )[[1]]
+process_pdf <- function(path) {
+  # Trying pdftools to text, could be quicker than ocr
 
-  training_set <- tibble(raw = date_lines) %>%
-    mutate(
-      date = mdy(str_extract(raw,
-                             "(Jan|Feb|Mar|Apr|May|Jun|Jul|Aug|Sep|Oct|Nov|Dec)[a-z]*\\s+\\d{1,2},\\s+\\d{4}"
-      )),
+  t1 <- pdftools::pdf_text(path)
+
+  # combine into one page and separate lines
+
+  lines <- stringr::str_split(paste(t1, collapse = "\n"), "\n")[[1]]
+
+  # find line where class schedule starts
+
+  idx <- stringr::str_which(
+    lines,
+    regex("(class|course|lecture|tentative).*?(schedule|outline|grading)", ignore_case = TRUE))
+
+
+  # If above is 0, then search entire pdf for for 'midterm|assignment|project|exam|quiz|homework'
+
+  # If non zero, proceed as done below
+
+  # return class schedule only
+
+  if (length(idx) == 0) {
+    schedule_text <- lines
+  } else {
+    idx <- idx[1]
+    schedule_text <- lines[(idx + 1):length(lines)]
+  }
+
+  # collapse back into readable text to confirm output
+
+  schedule_text <- stringr::str_trim(schedule_text)
+  schedule_text <- schedule_text[schedule_text != ""]
+
+
+  assessment_lines <- schedule_text %>%
+    purrr::keep(~stringr::str_detect(.x,regex('midterm|assignment|project|exam|quiz|homework',ignore_case = T)))
+
+  assessments <- tibble::tibble(
+    raw = assessment_lines
+  ) %>%
+    dplyr::mutate(
+      date1 = stringr::str_extract(raw,
+                                   "(Jan|Feb|Mar|Apr|May|Jun|Jul|Aug|Sep|Oct|Nov|Dec)[a-z]*\\s+\\d{1,2}"),
+      date2 = stringr::str_extract(raw,
+                                   "(?<=\\b)(Jan|Feb|Mar|Apr|May|Jun|Jul|Aug|Sep|Oct|Nov|Dec)[a-z]*\\s+\\d{1,2}"), # fallback
+      start_date = dplyr::coalesce(date1, date2), # if date 1 is na, use date 2
+      event = stringr::str_trim(str_remove(raw, "^[A-Za-z]{3}\\s+\\d{1,2}")),
       event_type = case_when(
-        str_detect(raw, regex("exam", TRUE)) ~ "Exam",
-        str_detect(raw, regex("assignment", TRUE)) ~ "Assignment",
-        str_detect(raw, regex("quiz", TRUE)) ~ "Quiz",
-        TRUE ~ "Lecture"
-      ),
-      title = str_trim(str_remove(raw, ".*\\d{4}"))
+                str_detect(raw, regex("exam", TRUE)) ~ "Exam",
+                str_detect(raw, regex("assignment", TRUE)) ~ "Assignment",
+                str_detect(raw, regex("quiz", TRUE)) ~ "Quiz",
+                TRUE ~ "Lecture")) %>%
+    dplyr::mutate(
+      start_date = lubridate::mdy(paste(start_date, 2026))
     ) %>%
-    select(event_type, title, start_date = date)
+    select(start_date, event, event_type) %>%
+    tidyr::drop_na()
 
-  return(training_set)
+  return(assessments)
 }
 
 
@@ -148,7 +211,7 @@ server <- function(input, output, session) {
     # }
 
     ###########
-    #
+
     print(Sys.time())
     base_dir <- file.path(getwd())
     cache_dir <- file.path(base_dir, "dl_cache")
@@ -165,7 +228,7 @@ server <- function(input, output, session) {
     # img_file <- pdftools::pdf_convert(file_path)
     # pdf_text <- ocr(img_file)
     #
-    # # Delete the pngs and the pdf file
+    # # Delete the pngs and the pdf fileins
     # unlink(img_file)
     # unlink(file_path)
     #
@@ -186,12 +249,21 @@ server <- function(input, output, session) {
 
 #Pdf Upload Workflow
   observeEvent(input$submit_upload, {
-    showModal(modalDialog(
-      title = "Oops!",
-      "This is still under construction.",
-      easyClose = TRUE,
-      footer = modalButton("OK")
-    ))
+    showModal(
+      modalDialog(
+        title = "Oops!",
+        tagList(
+          p("This is still under construction."),
+          tags$img(
+            src = "bob.png",
+            width = "250px",
+            style = "display:block; margin:auto;"
+          )
+        ),
+        easyClose = TRUE,
+        footer = modalButton("OK")
+      )
+    )
   })
 
     #########################################
@@ -253,14 +325,15 @@ server <- function(input, output, session) {
       mutate(
         id = row_number(),
         calendarId = event_type,
-        category = "allday",  # Changed to allday since we don't have times
+        title = event,
+        category = "allday",
         start = format(start_date, "%Y-%m-%d"),
-        end = format(start_date, "%Y-%m-%d"),  # Add end column
+        end = format(start_date, "%Y-%m-%d"),
         backgroundColor = case_when(
           event_type == "Exam" ~ "#FF6B6B",
           event_type == "Assignment" ~ "#4ECDC4",
           event_type == "Quiz" ~ "#FFE66D",
-          event_type == "Lecture" ~"#A020F0",
+          event_type == "Lecture" ~ "#A020F0",
           TRUE ~ "#95E1D3"
         ),
         borderColor = backgroundColor
@@ -333,32 +406,82 @@ server <- function(input, output, session) {
   })
 
 
+  combined_table <- reactive({
+    req(calendar_ready())
+
+    # Get the selected semester dates
+    start_semester <- as.Date(input$semester_dates[1])
+    end_semester <- as.Date(input$semester_dates[2])
+
+    # Parse the course times and dates from the scraped data
+    class_info <- course_data %>%
+      filter(
+        course_code == input$course,
+        course_number == input$course_number_pick,
+        course_section_choices == input$course_section
+      ) %>%
+      select(course_dates, course_times) %>%
+      slice(1)
+
+    # Extract days of week from format like "2026-01-05 - 2026-04-10 (TR)"
+    days_str <- class_info$course_dates
+    days_match <- str_extract(days_str, "\\(([A-Z]+)\\)")
+    days_only <- str_replace_all(days_match, "[\\(\\)]", "")
+
+    day_map <- c(M = 2, T = 3, W = 4, R = 5, F = 6, S = 7, U = 1)
+    class_days <- strsplit(days_only, "")[[1]]
+    weekdays_nums <- day_map[class_days]
+    weekdays_nums <- weekdays_nums[!is.na(weekdays_nums)]
+
+    # Parse time range (handles both 12-hour and 24-hour formats)
+    time_str <- class_info$course_times
+    times <- strsplit(time_str, " - ")[[1]]
+
+    start_time <- suppressWarnings(parse_date_time(times[1], orders = c("H:M", "I:M p", "I p")))
+    end_time <- suppressWarnings(parse_date_time(times[2], orders = c("H:M", "I:M p", "I p")))
+
+    # Generate all dates in the semester range
+    all_dates <- seq.Date(start_semester, end_semester, by = "day")
+    class_dates <- all_dates[wday(all_dates) %in% weekdays_nums]
+
+    # Create recurring class events
+    max_id <- ifelse(nrow(calendar_ready()) > 0, max(calendar_ready()$id), 0)
+
+    lecture_events <- tibble(
+      start_date = class_dates,
+      event = paste(input$course, input$course_number_pick, "Lecture"),
+      event_type = "Lecture"
+    )
+
+    bind_rows(calendar_data(), lecture_events)
+  })
+
+  # output$schedule_table <- renderTable({
+  #   req(calendar_data())
+  #
+  #   calendar_data() %>%
+  #     arrange(start_date) %>%
+  #     mutate(
+  #       start_date = format(start_date, "%Y-%m-%d")
+  #     ) %>%
+  #     select(Type = event_type, Title = event, `Start Date` = start_date)
+  # })
+  #
+  # output$schedule_calendar <- renderCalendar({
+  #   req(combined_calendar())
+  #   calendar(combined_calendar(), navigation = TRUE)
+  # })
+
+
   output$schedule_table <- renderTable({
     req(calendar_data())
 
-    calendar_data() %>%
+    combined_table() %>%
       arrange(start_date) %>%
       mutate(
         start_date = format(start_date, "%Y-%m-%d")
       ) %>%
-      select(Type = event_type, Title = title, `Start Date` = start_date)
-  })
-
-  output$schedule_calendar <- renderCalendar({
-    req(combined_calendar())
-    calendar(combined_calendar(), navigation = TRUE)
-  })
-
-
-  output$schedule_table <- renderTable({
-    req(calendar_data())
-
-    calendar_data() %>%
-      arrange(start_date) %>%
-      mutate(
-        start_date = format(start_date, "%Y-%m-%d")
-      ) %>%
-      select(Type = event_type, Title = title, `Start Date` = start_date)
+      select(Type = event_type, Title = event, `Start Date` = start_date)
 
   })
   output$schedule_calendar <- renderCalendar({
