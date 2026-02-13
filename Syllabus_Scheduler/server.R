@@ -14,6 +14,9 @@ library(tesseract)
 library(tibble)
 library(tidyverse)
 library(stringr)
+library(shiny)
+library(shinyjs)
+
 
 #OCR Processing as a function so that we can use the same logic for both the selected courses and the pdf uplaod
 process_pdf <- function(file_path) {
@@ -31,65 +34,16 @@ process_pdf <- function(file_path) {
       date = mdy(str_extract(raw,
                              "(Jan|Feb|Mar|Apr|May|Jun|Jul|Aug|Sep|Oct|Nov|Dec)[a-z]*\\s+\\d{1,2},\\s+\\d{4}"
       )),
-
-      # Extract time ranges like 9:00 AM - 10:15 AM
-      time_range = str_extract(raw,
-                               "\\d{1,2}(:\\d{2})?\\s?(AM|PM)?\\s?[-–to]+\\s?\\d{1,2}(:\\d{2})?\\s?(AM|PM)?"
-      ),
-
-      # Extract single time if no range
-      single_time = str_extract(raw,
-                                "\\d{1,2}(:\\d{2})?\\s?(AM|PM)"
-      ),
-
       event_type = case_when(
         str_detect(raw, regex("exam", TRUE)) ~ "Exam",
         str_detect(raw, regex("assignment", TRUE)) ~ "Assignment",
         str_detect(raw, regex("quiz", TRUE)) ~ "Quiz",
         TRUE ~ "Lecture"
       ),
-
-      title = str_trim(str_remove(raw, ".*\\d{4}[:\\-\\s]*"))
-    )
-
-  training_set <- training_set %>%
-    rowwise() %>%
-    mutate(
-      start_date = {
-
-        if (!is.na(time_range)) {
-
-          times <- str_split(time_range, "[-–to]+")[[1]]
-          parsed_time <- parse_date_time(times[1], orders = c("I:M p", "I p"))
-          as.POSIXct(date, tz = "America/Edmonton") + hours(hour(parsed_time)) + minutes(minute(parsed_time))
-
-        } else if (!is.na(single_time)) {
-
-          parsed_time <- parse_date_time(single_time, orders = c("I:M p", "I p"))
-          as.POSIXct(date, tz = "America/Edmonton") + hours(hour(parsed_time)) + minutes(minute(parsed_time))
-
-        } else {
-
-          # Default if no time found
-          as.POSIXct(date, tz = "America/Edmonton") + hours(12)
-        }
-      },
-
-      end_date = {
-
-        if (!is.na(time_range)) {
-
-          times <- str_split(time_range, "[-–to]+")[[1]]
-          parsed_time <- parse_date_time(times[2], orders = c("I:M p", "I p"))
-          as.POSIXct(date, tz = "America/Edmonton") + hours(hour(parsed_time)) + minutes(minute(parsed_time))
-
-        } else {
-
-          start_date + hours(1)
-        }
-      }
+      title = str_trim(str_remove(raw, ".*\\d{4}"))
     ) %>%
-    ungroup()
+    select(event_type, title, start_date = date)
+
   return(training_set)
 }
 
@@ -163,6 +117,8 @@ server <- function(input, output, session) {
   ## Checking to see how long it takes to dynamically download and run OCR while user is using the app
 
   observeEvent(input$submit_button, {
+    shinyjs::disable("submit_button")
+    Sys.sleep(3)
     base_url <- "https://apps.ualberta.ca/catalogue/syllabus/download/"
 
     course_id <- course_data %>%
@@ -225,22 +181,17 @@ server <- function(input, output, session) {
     calendar_data(training_set)
     unlink(file_path)
     nav_select("navbar", selected = "Results - Calendar")
+    shinyjs::enable("submit_button")
   })
 
 #Pdf Upload Workflow
   observeEvent(input$submit_upload, {
-
-    req(input$file_input)
-
-    file_path <- input$file_input$datapath
-
-    training_set <- process_pdf(file_path)
-
-    calendar_data(training_set)
-
-    unlink(file_path)
-
-    nav_select("navbar", selected = "Results - Calendar")
+    showModal(modalDialog(
+      title = "Oops!",
+      "This is still under construction.",
+      easyClose = TRUE,
+      footer = modalButton("OK")
+    ))
   })
 
     #########################################
@@ -302,11 +253,9 @@ server <- function(input, output, session) {
       mutate(
         id = row_number(),
         calendarId = event_type,
-        category = "time",
-
-        start = format(start_date, "%Y-%m-%dT%H:%M:%S"),
-        end   = format(end_date, "%Y-%m-%dT%H:%M:%S"),
-
+        category = "allday",  # Changed to allday since we don't have times
+        start = format(start_date, "%Y-%m-%d"),
+        end = format(start_date, "%Y-%m-%d"),  # Add end column
         backgroundColor = case_when(
           event_type == "Exam" ~ "#FF6B6B",
           event_type == "Assignment" ~ "#4ECDC4",
@@ -314,9 +263,73 @@ server <- function(input, output, session) {
           event_type == "Lecture" ~"#A020F0",
           TRUE ~ "#95E1D3"
         ),
-
         borderColor = backgroundColor
       )
+  })
+
+  # Combine class schedule with syllabus events
+  combined_calendar <- reactive({
+    req(calendar_ready())
+
+    # Get the selected semester dates
+    start_semester <- as.Date(input$semester_dates[1])
+    end_semester <- as.Date(input$semester_dates[2])
+
+    # Parse the course times and dates from the scraped data
+    class_info <- course_data %>%
+      filter(
+        course_code == input$course,
+        course_number == input$course_number_pick,
+        course_section_choices == input$course_section
+      ) %>%
+      select(course_dates, course_times) %>%
+      slice(1)
+
+    # Extract days of week from format like "2026-01-05 - 2026-04-10 (TR)"
+    days_str <- class_info$course_dates
+    days_match <- str_extract(days_str, "\\(([A-Z]+)\\)")
+    days_only <- str_replace_all(days_match, "[\\(\\)]", "")
+
+    day_map <- c(M = 2, T = 3, W = 4, R = 5, F = 6, S = 7, U = 1)
+    class_days <- strsplit(days_only, "")[[1]]
+    weekdays_nums <- day_map[class_days]
+    weekdays_nums <- weekdays_nums[!is.na(weekdays_nums)]
+
+    # Parse time range (handles both 12-hour and 24-hour formats)
+    time_str <- class_info$course_times
+    times <- strsplit(time_str, " - ")[[1]]
+
+    start_time <- suppressWarnings(parse_date_time(times[1], orders = c("H:M", "I:M p", "I p")))
+    end_time <- suppressWarnings(parse_date_time(times[2], orders = c("H:M", "I:M p", "I p")))
+
+    # Generate all dates in the semester range
+    all_dates <- seq.Date(start_semester, end_semester, by = "day")
+    class_dates <- all_dates[wday(all_dates) %in% weekdays_nums]
+
+    # Create recurring class events
+    max_id <- ifelse(nrow(calendar_ready()) > 0, max(calendar_ready()$id), 0)
+
+    class_events <- tibble(
+      id = (max_id + 1):(max_id + length(class_dates)),
+      calendarId = "Class",
+      title = paste(input$course, input$course_number_pick, "Lecture"),
+      category = "time",
+      start = format(
+        as.POSIXct(paste(class_dates, "00:00:00"), tz = "America/Edmonton") +
+          hours(hour(start_time)) + minutes(minute(start_time)),
+        "%Y-%m-%dT%H:%M:%S"
+      ),
+      end = format(
+        as.POSIXct(paste(class_dates, "00:00:00"), tz = "America/Edmonton") +
+          hours(hour(end_time)) + minutes(minute(end_time)),
+        "%Y-%m-%dT%H:%M:%S"
+      ),
+      backgroundColor = "#95A5A6",
+      borderColor = "#95A5A6"
+    )
+
+    # Combine with syllabus events
+    bind_rows(calendar_ready(), class_events)
   })
 
 
@@ -328,12 +341,30 @@ server <- function(input, output, session) {
       mutate(
         start_date = format(start_date, "%Y-%m-%d")
       ) %>%
-      select(Type = event_type, Title = title, `Start Date` = start_date, `End Date` = end_date)
+      select(Type = event_type, Title = title, `Start Date` = start_date)
+  })
+
+  output$schedule_calendar <- renderCalendar({
+    req(combined_calendar())
+    calendar(combined_calendar(), navigation = TRUE)
+  })
+
+
+  output$schedule_table <- renderTable({
+    req(calendar_data())
+
+    calendar_data() %>%
+      arrange(start_date) %>%
+      mutate(
+        start_date = format(start_date, "%Y-%m-%d")
+      ) %>%
+      select(Type = event_type, Title = title, `Start Date` = start_date)
 
   })
   output$schedule_calendar <- renderCalendar({
-    calendar(calendar_data, navigation = TRUE)
+    calendar(combined_calendar(), navigation = TRUE)
   })
+  # Combine class schedule with syllabus events
 
     observeEvent(input$back_button, {
       nav_select("navbar", selected = "Upload")

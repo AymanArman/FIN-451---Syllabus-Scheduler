@@ -10,7 +10,8 @@
 library(shiny)
 library(lubridate)
 library(bslib)
-
+library(shiny)
+library(shinyjs)
 # page_fillable(
 #   titlePanel("Syllabus Event Creator"),
 #   layout_columns(
@@ -40,7 +41,9 @@ library(toastui)
 default_start <- Sys.Date()
 default_end <- default_start %m+% months(4)
 
+
 page_navbar(
+  useShinyjs(),
   title = "Syllabus Scheduler",
   id = "navbar",
   theme = bs_theme(bootswatch = "flatly"),
